@@ -1,0 +1,5 @@
+#!/sbin/bash
+. common
+[ -e $win -a -e $esp ] || { echo "nothing to format huh. check your partitions"; exit 1; }
+formatwinesp
+echo "done!"

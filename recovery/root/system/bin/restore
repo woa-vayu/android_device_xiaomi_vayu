@@ -1,0 +1,8 @@
+#!/sbin/bash
+. common
+removeparts
+$partedcmd mkpart userdata ext4 11.7GB $max"GB"
+sgdisk --resize-table 32 /dev/block/sda
+sync
+twrp format data
+echo "done!"

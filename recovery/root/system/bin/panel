@@ -1,0 +1,7 @@
+#!/sbin/bash
+if cat /proc/cmdline|grep -q "dsi_j20s_36_02_0a_video_display"
+then echo Tianma
+elif cat /proc/cmdline|grep -q "dsi_j20s_42_02_0b_video_display"
+then echo Huaxing
+else echo unknown
+fi
