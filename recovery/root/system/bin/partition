@@ -1,0 +1,24 @@
+#!/sbin/bash
+. common
+if [[ -n $1 ]]; then
+winmax=$(echo "$max - 11.7 - 1 - 0.1" | bc) # 1 for esp and 0.1 for userdata
+echo "min size is 0.1, max size is $winmax"
+! [[ -z $2 && $1 =~ ^[0-9]{1,3}(\.[0-9])?$ && $(echo "0.1 < $1 && $1 < $winmax" | bc) == 1 ]] && echo "invalid argument!" && exit 1
+echo ""$(echo "scale=2; $1*1000^3/1024^3"|bc -l)"GiB of space will be given to the main windows parition"
+userdataend=$(echo "$max - $1 - 1" | bc)
+echo "userdata will get "$(echo "scale=2;($userdataend-11.7)*1000^3/1024^3"|bc -l)"GiB of space"
+read -p "does that sound good (y/n)? " yn
+[[ $yn =~ ^[Yy]*$ ]] || { echo "rethink things carefully and, eventually, you'll come to a conclusion.";exit 1; }
+else userdataend=$(echo "scale=1;$max/2"|bc -l)
+fi
+winend=$((max-1))"GB"
+removeparts
+sgdisk --resize-table 64 /dev/block/sda
+$partedcmd mkpart userdata ext4 11.7GB $userdataend"GB"
+$partedcmd mkpart win ntfs $userdataend"GB" $winend
+$partedcmd mkpart esp fat32 $winend $max"GB"
+$partedcmd set 34 esp on
+sync
+twrp format data
+formatwinesp
+echo "done!"
