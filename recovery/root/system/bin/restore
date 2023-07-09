@@ -1,0 +1,24 @@
+#!/system/bin/sh
+if getprop sys.usb.config|grep -q "mtp"; then
+echo "run the script again!"
+setprop sys.usb.config adb
+rm /config/usb_gadget/g1/configs/b.1/f*
+exit 1
+fi
+twrp umount data
+twrp umount win
+twrp umount esp
+parted -s /dev/block/sda rm 34
+parted -s /dev/block/sda rm 33
+parted -s /dev/block/sda rm 32
+sgdisk --resize-table 32 /dev/block/sda
+if [[ "$(blockdev --getsize /dev/block/sda)" == "247382016" ]]; then
+parted -s /dev/block/sda mkpart userdata ext4 11.7GB 127GB
+elif [[ "$(blockdev --getsize /dev/block/sda)" == "497303552" ]]; then
+parted -s /dev/block/sda mkpart userdata ext4 11.7GB 255GB
+else echo "dang bro what the hell are you doing"; exit 1
+fi
+sync
+twrp format data
+echo "done...?"
+exit 0
