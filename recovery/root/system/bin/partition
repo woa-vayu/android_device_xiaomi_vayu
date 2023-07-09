@@ -1,0 +1,33 @@
+#!/system/bin/sh
+if getprop sys.usb.config|grep -q "mtp"; then
+echo "run the script again!"
+setprop sys.usb.config adb
+rm /config/usb_gadget/g1/configs/b.1/f*
+exit 1
+fi
+twrp umount data
+twrp umount win
+twrp umount esp
+sgdisk --resize-table 64 /dev/block/sda
+parted -s /dev/block/sda rm 34
+parted -s /dev/block/sda rm 33
+parted -s /dev/block/sda rm 32
+if [[ "$(blockdev --getsize /dev/block/sda)" == "247382016" ]]; then
+parted -s /dev/block/sda \
+  mkpart userdata ext4 11.7GB 68.6GB \
+  mkpart win ntfs 68.6GB 126GB \
+  mkpart esp fat32 126GB 127GB
+elif [[ "$(blockdev --getsize /dev/block/sda)" == "497303552" ]]; then
+parted -s /dev/block/sda \
+  mkpart userdata ext4 11.7GB 134.6GB \
+  mkpart win ntfs 134.6GB 254GB \
+  mkpart esp fat32 254GB 255GB
+else echo "dang bro what the hell are you doing"; exit 1
+fi
+parted -s /dev/block/sda set 34 esp on
+sync
+twrp format data
+mkfs.fat -F32 -s1 /dev/block/sda34 -n ESPVAYU
+mkfs.ntfs -f /dev/block/sda33 -L WINVAYU
+echo "done...?"
+exit 0

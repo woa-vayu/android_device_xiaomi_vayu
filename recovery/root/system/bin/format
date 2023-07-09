@@ -1,0 +1,12 @@
+#!/system/bin/sh
+if [ -e /config/usb_gadget/g1/configs/b.1/mass_storage.0 ]; then
+echo "msc enabled! aborting..."
+echo "reboot and run the script again."
+exit 1
+fi
+twrp umount esp
+twrp umount win
+mkfs.fat -F32 -s1 /dev/block/sda34 -n ESPVAYU
+mkfs.ntfs -f /dev/block/sda33 -L WINVAYU
+echo "done...?"
+exit 0
