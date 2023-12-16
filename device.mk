@@ -50,6 +50,7 @@ TARGET_RECOVERY_DEVICE_MODULES += libion libandroidicu vendor.display.config@1.0
 
 # TWRP specific build flags
 TW_THEME := portrait_hdpi
+TW_DEVICE_VERSION := mod4epsilon
 RECOVERY_SDCARD_ON_DATA := true
 TARGET_RECOVERY_QCOM_RTC_FIX := true
 TW_EXCLUDE_DEFAULT_USB_INIT := true

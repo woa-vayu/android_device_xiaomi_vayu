@@ -7,18 +7,19 @@ echo "min size is 0.1, max size is $winmax"
 echo ""$(echo "scale=2; $1*1000^3/1024^3"|bc -l)"GiB of space will be given to the main windows parition"
 userdataend=$(echo "$max - $1 - 1" | bc)
 echo "userdata will get "$(echo "scale=2;($userdataend-11.7)*1000^3/1024^3"|bc -l)"GiB of space"
-read -p "does that sound good (y/n)? " yn
-[[ $yn =~ ^[Yy]*$ ]] || { echo "rethink things carefully and, eventually, you'll come to a conclusion.";exit 1; }
+echo -n "does that sound good (y/n)? "
+read yn
+[[ $yn =~ ^[Yy].*$ ]] || { echo "rethink things carefully and, eventually, you'll come to a conclusion.";exit 1; }
 else userdataend=$(echo "scale=1;$max/2"|bc -l)
 fi
 winend=$((max-1))"GB"
 removeparts
 sgdisk --resize-table 64 /dev/block/sda
-$partedcmd mkpart userdata ext4 11.7GB $userdataend"GB"
-$partedcmd mkpart win ntfs $userdataend"GB" $winend
-$partedcmd mkpart esp fat32 $winend $max"GB"
-$partedcmd set 34 esp on
+parted -s /dev/block/sda mkpart userdata ext4 11.7GB $userdataend"GB"
+parted -s /dev/block/sda mkpart win ntfs $userdataend"GB" $winend
+parted -s /dev/block/sda mkpart esp fat32 $winend $max"GB"
+parted -s /dev/block/sda set 34 esp on
 sync
-twrp format data
+formatdata
 formatwinesp
 echo "done!"
